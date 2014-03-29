@@ -12,8 +12,8 @@ class Uniav
   
     public function __construct()
     {
-		if (! file_exists('./config.php')) {
-			die('Create config.php to run app.');
+        if (! file_exists('./config.php')) {
+            die('Create config.php to run app.');
         }
 	
         $this->config = require('./config.php');
