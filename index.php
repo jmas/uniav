@@ -5,16 +5,18 @@ require 'vendor/autoload.php';
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
 
-class AvatarFinder {
+class Uniav
+{
     public $email;
-	private $config=array();
+	private $config = array();
   
-    function __construct() {
-	if (! file_exists('./config.php')) {
-		die('Create config.php to run app.');
-	}
+    function __construct()
+    {
+		if (! file_exists('./config.php')) {
+			die('Create config.php to run app.');
+		}
 
-	$this->config = require('./config.php');
+		$this->config = require('./config.php');
 
         // 1
         if (isset($_GET['e']) && filter_var(base64_decode($_GET['e']), FILTER_VALIDATE_EMAIL)) {
@@ -25,11 +27,13 @@ class AvatarFinder {
         }
     }
     
-    static function init() {
+    static public function create()
+    {
         return new self;
     }
     
-    function run() {
+    public function run()
+    {
         // 2.a
         if (!file_exists('./data/' . md5($this->email) . '.dat')) {
             // 3.a
@@ -57,7 +61,8 @@ class AvatarFinder {
    
     }
     
-    function getCurl($url) {
+    public function getCurl($url)
+    {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -71,7 +76,8 @@ class AvatarFinder {
         return $result;
     }
     
-    function getFacebookPhoto() {
+    public function getFacebookPhoto()
+    {
         $url  = 'http://www.facebook.com/search.php?q=' . $this->email;
         $output = $this->getCurl($url);
         $dom = new DOMdocument();
@@ -88,8 +94,8 @@ class AvatarFinder {
         
     }
     
-    function AWSupload($image, $keyname) {
-    
+    public function AWSupload($image, $keyname)
+    {
         $s3 = S3Client::factory(array(
             'key'    => $this->config['awsKey'],
             'secret' => $this->config['awsSecret'],
@@ -108,11 +114,10 @@ class AvatarFinder {
         }
     }
     
-    function getGravatar() {
-        header("location:http://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email))) . "?d=mm&s=400");
+    public function getGravatar()
+    {
+        header("Location:http://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email))) . "?d=mm&s=400");
     }
-    
-  
 }
 
-AvatarFinder::init()->run();
+Uniav::create()->run();
