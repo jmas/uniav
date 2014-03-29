@@ -8,15 +8,15 @@ use Aws\S3\Exception\S3Exception;
 class Uniav
 {
     public $email;
-	private $config = array();
+    private $config = array();
   
-    function __construct()
+    public function __construct()
     {
 		if (! file_exists('./config.php')) {
 			die('Create config.php to run app.');
-		}
-
-		$this->config = require('./config.php');
+        }
+	
+        $this->config = require('./config.php');
 
         // 1
         if (isset($_GET['e']) && filter_var(base64_decode($_GET['e']), FILTER_VALIDATE_EMAIL)) {
@@ -57,8 +57,6 @@ class Uniav
             $data = file('./data/' . md5($this->email) . '.dat');
             header("location:" . $data[1]);
         }
-        
-   
     }
     
     public function getCurl($url)
@@ -80,10 +78,12 @@ class Uniav
     {
         $url  = 'http://www.facebook.com/search.php?q=' . $this->email;
         $output = $this->getCurl($url);
+        
         $dom = new DOMdocument();
         @$dom->loadHTML($output);
         $finder = new DomXPath($dom);
         $nodes = $finder->query("//*[contains(concat(' ', normalize-space(@class), ' '), 'detailedsearch_result')]");
+        
         if ($nodes->length == 1) {
             preg_match("/<a.?href=['\"](.+?facebook.com.+?)['\"].+?>/i", $output, $match);
             $id = substr( $match[1], strrpos( $match[1], '/' ) +1);
@@ -91,7 +91,6 @@ class Uniav
         } else {
             return false;
         }
-        
     }
     
     public function AWSupload($image, $keyname)
@@ -100,6 +99,7 @@ class Uniav
             'key'    => $this->config['awsKey'],
             'secret' => $this->config['awsSecret'],
         ));
+        
         try {
             $result = $s3->getCommand('PutObject')
                 ->set('Bucket', 'uniav')
