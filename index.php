@@ -7,7 +7,7 @@ use Aws\S3\Exception\S3Exception;
 
 class Uniav
 {
-    public $email;
+    public  $email;
     private $config = array();
   
     public function __construct()
@@ -44,7 +44,7 @@ class Uniav
                     $data = $this->email . "\n";
                     $data .= $imageUrl . "\n";
                     file_put_contents('./data/' . md5($this->email) . '.dat', $data);
-                    header("location:" . $imageUrl);
+                    header("Location:" . $imageUrl);
                 } else { //7.b
                     $this->getGravatar();
                 }
@@ -55,7 +55,7 @@ class Uniav
         } else {
             // 7.a
             $data = file('./data/' . md5($this->email) . '.dat');
-            header("location:" . $data[1]);
+            header("Location:" . $data[1]);
         }
     }
     
@@ -71,6 +71,7 @@ class Uniav
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2 GTB5');
         $result = curl_exec($ch);
         curl_close($ch);
+        
         return $result;
     }
     
@@ -87,6 +88,7 @@ class Uniav
         if ($nodes->length == 1) {
             preg_match("/<a.?href=['\"](.+?facebook.com.+?)['\"].+?>/i", $output, $match);
             $id = substr( $match[1], strrpos( $match[1], '/' ) +1);
+            
             return $this->getCurl('https://graph.facebook.com/'. $id .'/picture/?type=large');
         } else {
             return false;
@@ -108,6 +110,7 @@ class Uniav
                 ->set('ACL', 'public-read')
                 ->set('ContentType', 'image/jpeg')
                 ->getResult();
+                
             return $result['ObjectURL'];
         } catch (S3Exception $e) {
             echo $e->getMessage();
