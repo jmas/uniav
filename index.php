@@ -39,7 +39,7 @@ class Uniav
             // 3.a
             if ($image = $this->getFacebookPhoto()) {
                 // 5.a
-                if($imageUrl = $this->AWSupload($image, md5($this->email).'.jpg')) {
+                if($imageUrl = $this->uploadToAws($image, md5($this->email).'.jpg')) {
                     //6
                     $data = $this->email . "\n";
                     $data .= $imageUrl . "\n";
@@ -95,7 +95,7 @@ class Uniav
         }
     }
     
-    public function AWSupload($image, $keyname)
+    public function uploadToAws($image, $keyname)
     {
         $s3 = S3Client::factory(array(
             'key'    => $this->config['awsKey'],
