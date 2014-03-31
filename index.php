@@ -97,7 +97,7 @@ class Uniav
         
         try {
             $result = $s3->getCommand('PutObject')
-                ->set('Bucket', 'uniav')
+                ->set('Bucket', $this->config['awsBucket'])
                 ->set('Key', $keyname)
                 ->set('Body', $image)
                 ->set('ACL', 'public-read')
