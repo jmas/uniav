@@ -17,7 +17,6 @@ class Uniav
         }
 	
         $this->config = require('./config.php');
-
         // 1
         if (isset($_GET['e']) && filter_var(base64_decode($_GET['e']), FILTER_VALIDATE_EMAIL)) {
             $this->email = base64_decode($_GET['e']);
@@ -35,7 +34,7 @@ class Uniav
     public function run()
     {
         // 2.a
-        if (!file_exists('./data/' . md5($this->email) . '.dat')) {
+        if (! file_exists('./data/' . md5($this->email) . '.dat')) {
             // 3.a
             if ($image = $this->getFacebookPhoto()) {
                 // 5.a
@@ -77,18 +76,12 @@ class Uniav
     
     public function getFacebookPhoto()
     {
-        $url  = 'http://www.facebook.com/search.php?q=' . $this->email;
+        $url  = 'http://www.facebook.com/search.php?init=s:email&q=' . $this->email . '&type=users';
         $output = $this->getCurl($url);
-        
-        $dom = new DOMdocument();
-        @$dom->loadHTML($output);
-        $finder = new DomXPath($dom);
-        $nodes = $finder->query("//*[contains(concat(' ', normalize-space(@class), ' '), 'detailedsearch_result')]");
-        
-        if ($nodes->length == 1) {
+
+        if (substr_count($output, 'detailedsearch_result') === 1) {
             preg_match("/<a.?href=['\"](.+?facebook.com.+?)['\"].+?>/i", $output, $match);
             $id = substr( $match[1], strrpos( $match[1], '/' ) +1);
-            
             return $this->getCurl('https://graph.facebook.com/'. $id .'/picture/?type=large');
         } else {
             return false;
