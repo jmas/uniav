@@ -33,16 +33,20 @@ class Uniav
     
     public function run()
     {
+    	$emailFormatted = strtolower(trim($this->email));
+    	$emailHash = md5($emailFormatted);
+    	
         // 2.a
-        if (! file_exists('./data/' . md5($this->email) . '.dat')) {
+        if (! file_exists('./data/' . $emailHash . '.dat')) {
             // 3.a
             if ($image = $this->getFacebookPhoto()) {
                 // 5.a
-                if($imageUrl = $this->uploadToAws($image, md5($this->email).'.jpg')) {
+                if ($imageUrl = $this->uploadToAws($image, $emailHash . '.jpg')) {
                     //6
-                    $data = $this->email . "\n";
+                    $data = $emailFormatted . "\n";
                     $data .= $imageUrl . "\n";
-                    file_put_contents('./data/' . md5($this->email) . '.dat', $data);
+                    
+                    file_put_contents('./data/' . $emailHash . '.dat', $data);
                     header("Location:" . $imageUrl);
                 } else { //7.b
                     $this->getGravatar();
@@ -53,7 +57,7 @@ class Uniav
             
         } else {
             // 7.a
-            $data = file('./data/' . md5($this->email) . '.dat');
+            $data = file('./data/' . $emailHash . '.dat');
             header("Location:" . $data[1]);
         }
     }
@@ -76,7 +80,7 @@ class Uniav
     
     public function getFacebookPhoto()
     {
-        $url  = 'http://www.facebook.com/search.php?init=s:email&q=' . $this->email . '&type=users';
+        $url  = 'http://www.facebook.com/search.php?init=s:email&q=' . strtolower(trim($this->email)) . '&type=users';
         $output = $this->getCurl($url);
 
         if (substr_count($output, 'detailedsearch_result') === 1) {
