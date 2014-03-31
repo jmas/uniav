@@ -49,10 +49,10 @@ class Uniav
                     file_put_contents('./data/' . $emailHash . '.dat', $data);
                     header("Location:" . $imageUrl);
                 } else { //7.b
-                    $this->getGravatar();
+                    $this->redirectGravatar();
                 }
             } else { //7.b
-                $this->getGravatar();
+                $this->redirectGravatar();
             }
             
         } else {
@@ -114,7 +114,7 @@ class Uniav
         }
     }
     
-    public function getGravatar()
+    public function redirectGravatar()
     {
         header("Location:http://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email))) . "?d=mm&s=400");
     }
