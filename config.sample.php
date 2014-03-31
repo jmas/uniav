@@ -1,6 +1,6 @@
 <?php
 return array(
-	'awsKey'=>'',
-	'awsSecret'=>'',
-	'awsBucket'=>'uniav',
+    'awsKey'=>'',
+    'awsSecret'=>'',
+    'awsBucket'=>'uniav',
 );
