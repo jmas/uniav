@@ -5,6 +5,21 @@ require 'vendor/autoload.php';
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
 
+function xorCrypt($text, $key) {
+    $key = md5($key);
+    
+     // Our output text
+    $outText = '';
+    
+    // Iterate through each character
+    for($i=0;$i<strlen($text);) {
+        for($j=0;($j<strlen($key) && $i<strlen($text));$j++,$i++) {
+            $outText .= $text{$i} ^ $key{$j};
+        }
+    }  
+    return $outText;
+}
+
 class Uniav
 {
     public  $email;
@@ -18,8 +33,15 @@ class Uniav
 	
         $this->config = require('./config.php');
         // 1
-        if (isset($_GET['e']) && filter_var(base64_decode($_GET['e']), FILTER_VALIDATE_EMAIL)) {
-            $this->email = base64_decode($_GET['e']);
+        if (isset($_GET['e'])) {
+            $email = strtolower(trim(xorCrypt(base64_decode($_GET['e']), $this->config['cryptKey'])));
+            
+            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                header("HTTP/1.0 500 Internal Server Error");
+                die('Wrong parameter e.');
+            } else {
+                $this->email = $email;
+            }
         } else {
             header("HTTP/1.0 500 Internal Server Error");
             die('Required parameter missing.');
@@ -33,8 +55,7 @@ class Uniav
     
     public function run()
     {
-    	$emailFormatted = strtolower(trim($this->email));
-    	$emailHash = md5($emailFormatted);
+    	$emailHash = md5($this->email);
     	
         // 2.a
         if (! file_exists('./data/' . $emailHash . '.dat')) {
@@ -43,7 +64,7 @@ class Uniav
                 // 5.a
                 if ($imageUrl = $this->uploadToAws($image, $emailHash . '.jpg')) {
                     //6
-                    $data = $emailFormatted . "\n";
+                    $data = $this->email . "\n";
                     $data .= $imageUrl . "\n";
                     
                     file_put_contents('./data/' . $emailHash . '.dat', $data);
